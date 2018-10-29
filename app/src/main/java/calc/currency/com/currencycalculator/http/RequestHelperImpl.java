@@ -1,5 +1,7 @@
 package calc.currency.com.currencycalculator.http;
 
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -9,6 +11,7 @@ import java.net.URLConnection;
 
 public class RequestHelperImpl implements RequestHelper{
 
+    @Nullable
     private URLConnection getConnection(String stringUrl) {
         URLConnection urlConnection = null;
         URL url = null;
@@ -24,7 +27,7 @@ public class RequestHelperImpl implements RequestHelper{
     }
 
     @Override
-    public InputStream getInputStream(String stringUrl) {
+    public InputStream getInputStream(String stringUrl) throws NullPointerException{
         HttpURLConnection connection = (HttpURLConnection) getConnection(stringUrl);
         InputStream inputStream = null;
         try {

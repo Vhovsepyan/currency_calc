@@ -4,6 +4,6 @@ import java.io.InputStream;
 
 public interface RequestHelper {
 
-    InputStream getInputStream(String url);
+    InputStream getInputStream(String url) throws NullPointerException;
 
 }
