@@ -44,7 +44,6 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView{
         firstSpinner = findViewById(R.id.first_spinner);
         secondSpinner = findViewById(R.id.second_spinner);
         firstEditText = findViewById(R.id.first_edit_text);
-
         resultTextView = findViewById(R.id.summary_text_view);
 
         homePresenter.start();

@@ -7,75 +7,87 @@
     android:layout_gravity="center_vertical"
     tools:context=".view.HomeActivity">
 
-    <Button
-        android:id="@+id/load_button"
+    <Spinner
+        android:id="@+id/first_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Load"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="16dp"
+        android:gravity="center_vertical"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/first_edit_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/first_edit_text"
+        tools:text="first_text " />
+
+
+    <TextView
+        android:id="@+id/input_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/input_text"
+        app:layout_constraintBottom_toBottomOf="@+id/first_spinner"
+        app:layout_constraintEnd_toStartOf="@id/first_edit_text"
+        app:layout_constraintStart_toEndOf="@id/first_spinner"
+        app:layout_constraintTop_toTopOf="@id/first_spinner" />
+
 
     <EditText
         android:id="@+id/first_edit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="30dp"
+        android:layout_margin="16dp"
+        android:hint="0"
         android:inputType="numberDecimal"
-        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/input_text_view"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="First edit text ">
-
-    </EditText>
+        tools:text="edit text " />
 
 
-    <Spinner
-        android:id="@+id/first_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text= "first_text "
-        android:gravity="center_vertical"
-        android:spinnerMode="dropdown"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/equals_or_replace_icon"
-        app:layout_constraintStart_toEndOf="@id/first_edit_text">
-    </Spinner>
-
-
-
-
-    <TextView
+    <ImageView
         android:id="@+id/equals_or_replace_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="equals"
-        android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/first_spinner"
-        app:layout_constraintEnd_toStartOf="@id/summary_text_view"/>
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_replace_black"
+        app:layout_constraintEnd_toEndOf="@id/first_spinner"
+        app:layout_constraintStart_toStartOf="@id/second_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/first_spinner" />
 
-    <TextView
-        android:id="@+id/summary_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/equals_or_replace_icon"
-        app:layout_constraintEnd_toStartOf="@id/second_spinner"
-        tools:text="Summary Value"/>
 
     <Spinner
         android:id="@+id/second_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:layout_margin="16dp"
         android:spinnerMode="dropdown"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/summary_text_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/equals_or_replace_icon"
+        tools:text="second Spinner " />
+
+    <TextView
+        android:id="@+id/result_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/result_text"
+        app:layout_constraintBottom_toBottomOf="@+id/second_spinner"
+        app:layout_constraintEnd_toStartOf="@id/summary_text_view"
+        app:layout_constraintStart_toEndOf="@id/second_spinner"
+        app:layout_constraintTop_toTopOf="@id/second_spinner" />
+
+
+    <TextView
+        android:id="@+id/summary_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="30dp"
+        android:layout_margin="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text = "second Spinner ">
-    </Spinner>
+        app:layout_constraintStart_toEndOf="@id/result_text_view"
+        app:layout_constraintTop_toTopOf="@id/second_spinner"
+        app:layout_constraintBottom_toBottomOf="@id/second_spinner"
+        tools:text="Summary Value" />
 
 
 </android.support.constraint.ConstraintLayout>

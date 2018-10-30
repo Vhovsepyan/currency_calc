@@ -6,4 +6,6 @@ public interface RequestHelper {
 
     InputStream getInputStream(String url) throws NullPointerException;
 
+    void getCurrencies(HttpResponseListener responseListener);
+
 }

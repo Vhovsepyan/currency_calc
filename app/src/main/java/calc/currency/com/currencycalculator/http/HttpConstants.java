@@ -1,4 +1,5 @@
 package calc.currency.com.currencycalculator.http;
 
-public class HttpConstants {
+public interface HttpConstants {
+    String CURRENCIES_URL = "http://www.cbr.ru/scripts/XML_daily.asp";
 }

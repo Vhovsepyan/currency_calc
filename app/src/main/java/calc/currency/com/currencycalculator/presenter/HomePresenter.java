@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import calc.currency.com.currencycalculator.http.HttpConstants;
+import calc.currency.com.currencycalculator.http.HttpResponseListener;
 import calc.currency.com.currencycalculator.http.RequestHelper;
 import calc.currency.com.currencycalculator.http.RequestHelperImpl;
 import calc.currency.com.currencycalculator.model.Currency;
@@ -30,15 +32,6 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
     private Currency secondCurrency;
     private double valueToConvert;
     private List<Currency> mCurrencies = new ArrayList<>();
-
-    public void setValueToConvert(String  valueToConvert) {
-        if (valueToConvert.isEmpty()){
-            this.valueToConvert = 0;
-        } else {
-            this.valueToConvert = Double.parseDouble(valueToConvert);
-        }
-        convertCurrencies();
-    }
 
 
     public HomePresenter(HomeActivityView homeView, StorageService storageService) {
@@ -68,23 +61,26 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
     }
 
     private void getCurrenciesFromAPI() {
-        Serializer serializer = new Persister();
         RequestHelper requestHelper = new RequestHelperImpl();
-        InputStream inputStream = requestHelper.getInputStream("http://www.cbr.ru/scripts/XML_daily.asp");
-        CurrencyList currencies = null;
-        try {
-            currencies = serializer.read(CurrencyList.class, inputStream);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (currencies != null) {
-            insertOrUpdateCurrencies(currencies);
-            mCurrencies.addAll(currencies.getCurrencies());
-        } else {
-            mCurrencies.addAll(getStorageService().getAllCurrencies());
+        requestHelper.getCurrencies(responseListener);
+    }
+
+    private HttpResponseListener<CurrencyList> responseListener = new HttpResponseListener<CurrencyList>() {
+        @Override
+        public void onSuccess(CurrencyList obj) {
+            if (obj != null) {
+                insertOrUpdateCurrencies(obj);
+                mCurrencies.addAll(obj.getCurrencies());
+            } else {
+                mCurrencies.addAll(getStorageService().getAllCurrencies());
+            }
         }
 
-    }
+        @Override
+        public void onError(String errorMessage) {
+
+        }
+    };
 
     public void setFirstCurrency(Currency firstCurrency){
         this.firstCurrency = firstCurrency;
@@ -104,8 +100,18 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
         }
     }
 
-    public List<Currency> getCurrencies() {
-        return getStorageService().getAllCurrencies();
+    public void setValueToConvert(String  valueToConvert) {
+        if (valueToConvert.isEmpty()){
+            this.valueToConvert = 0;
+        } else {
+            this.valueToConvert = Double.parseDouble(valueToConvert);
+        }
+        convertCurrencies();
+    }
+
+
+    public void replaceCurrencies(){
+
     }
 
 

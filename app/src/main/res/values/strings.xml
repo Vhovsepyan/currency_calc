@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CurrencyCalculator</string>
+    <string name="input_text">Input</string>
+    <string name="result_text">Result</string>
 </resources>
