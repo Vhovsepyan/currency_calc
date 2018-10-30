@@ -11,12 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Currency;
-import java.util.List;
 
 import calc.currency.com.currencycalculator.model.CurrencyList;
 
-public class RequestHelperImpl implements RequestHelper{
+public class RequestHelperImpl implements RequestHelper {
 
     @Nullable
     private URLConnection getConnection(String stringUrl) {
@@ -34,7 +32,7 @@ public class RequestHelperImpl implements RequestHelper{
     }
 
     @Override
-    public InputStream getInputStream(String stringUrl) throws NullPointerException{
+    public InputStream getInputStream(String stringUrl) throws NullPointerException {
         HttpURLConnection connection = (HttpURLConnection) getConnection(stringUrl);
         InputStream inputStream = null;
         try {
@@ -57,7 +55,7 @@ public class RequestHelperImpl implements RequestHelper{
             e.printStackTrace();
         }
 
-        if (responseListener != null){
+        if (responseListener != null) {
             responseListener.onSuccess(currencies);
         }
     }

@@ -1,20 +1,19 @@
 package calc.currency.com.currencycalculator.view;
 
 import android.arch.lifecycle.Lifecycle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,7 @@ import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.presenter.HomePresenter;
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 
-public class HomeActivity extends AppCompatActivity implements HomeActivityView{
+public class HomeActivity extends AppCompatActivity implements HomeActivityView {
 
     private HomePresenter homePresenter;
     private Spinner firstSpinner;
@@ -33,6 +32,8 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView{
     private ArrayAdapter adapter;
     private EditText firstEditText;
     private TextView resultTextView;
+    private ImageView replaceIcon;
+    private FrameLayout progressLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,19 +46,12 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView{
         secondSpinner = findViewById(R.id.second_spinner);
         firstEditText = findViewById(R.id.first_edit_text);
         resultTextView = findViewById(R.id.summary_text_view);
+        replaceIcon = findViewById(R.id.equals_or_replace_icon);
+        replaceIcon.setOnClickListener(replaceClickListener);
+        progressLayout = findViewById(R.id.progress_layout);
 
         homePresenter.start();
     }
-
-    private List<String > getCharCodes(List<Currency> currencies){
-        List<String > charCodes = new ArrayList<>();
-        for (int i = 0; i < currencies.size(); i++) {
-            charCodes.add(currencies.get(i).getCharCode());
-        }
-
-        return charCodes;
-    }
-
 
     @Override
     protected void onDestroy() {
@@ -67,17 +61,17 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView{
 
     @Override
     public void showLoader() {
-
+        progressLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void dismissLoader() {
-
+        progressLayout.setVisibility(View.GONE);
     }
 
     @Override
     public void dataIsReady(List<Currency> currencies) {
-        if (isAlive()){
+        if (isAlive()) {
             firstEditText.addTextChangedListener(textWatcher);
             initAdapter(currencies);
         }
@@ -88,7 +82,13 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView{
         resultTextView.setText(result);
     }
 
-    private void initAdapter(List<Currency> currencies){
+    @Override
+    public void replaceCurrencies(int firstCurrencyPosition, int secondCurrencyPosition) {
+        firstSpinner.setSelection(secondCurrencyPosition);
+        secondSpinner.setSelection(firstCurrencyPosition);
+    }
+
+    private void initAdapter(List<Currency> currencies) {
         adapter = new CurrencyAdapter(this, R.layout.currency_adapter_item, currencies);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         firstSpinner.setAdapter(adapter);
@@ -114,7 +114,6 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView{
     };
 
 
-
     private AdapterView.OnItemSelectedListener firstSpinnerListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -135,6 +134,13 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView{
         @Override
         public void onNothingSelected(AdapterView<?> parent) {
 
+        }
+    };
+
+    private View.OnClickListener replaceClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            homePresenter.replaceCurrencies();
         }
     };
 

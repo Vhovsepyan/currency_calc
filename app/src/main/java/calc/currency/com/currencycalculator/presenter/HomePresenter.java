@@ -2,10 +2,6 @@ package calc.currency.com.currencycalculator.presenter;
 
 import android.support.annotation.NonNull;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
-
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -14,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import calc.currency.com.currencycalculator.http.HttpConstants;
 import calc.currency.com.currencycalculator.http.HttpResponseListener;
 import calc.currency.com.currencycalculator.http.RequestHelper;
 import calc.currency.com.currencycalculator.http.RequestHelperImpl;
@@ -28,7 +23,6 @@ import utils.CurrencyUtils;
 public class HomePresenter extends BasePresenter<HomeActivity> {
     private volatile HomeActivityView homeView;
     private Currency firstCurrency;
-
     private Currency secondCurrency;
     private double valueToConvert;
     private List<Currency> mCurrencies = new ArrayList<>();
@@ -40,23 +34,13 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
 
     }
 
-    public void  start(){
+    public void start() {
+        homeView.showLoader();
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> {
-            getCurrenciesFromAPI();
-
-            if (homeView != null){
-                getMainHandler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        homeView.dataIsReady(mCurrencies);
-                    }
-                });
-            }
-        });
+        executorService.execute(this::getCurrenciesFromAPI);
     }
 
-    public void stop(){
+    public void stop() {
         homeView = null;
     }
 
@@ -74,19 +58,30 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
             } else {
                 mCurrencies.addAll(getStorageService().getAllCurrencies());
             }
+            getMainHandler().post(() -> {
+                if (homeView != null){
+                    homeView.dataIsReady(mCurrencies);
+                    homeView.dismissLoader();
+                }
+            });
         }
 
         @Override
         public void onError(String errorMessage) {
-
+            getMainHandler().post(() -> {
+                if (homeView != null){
+                    homeView.dismissLoader();
+                }
+            });
         }
     };
 
-    public void setFirstCurrency(Currency firstCurrency){
+    public void setFirstCurrency(Currency firstCurrency) {
         this.firstCurrency = firstCurrency;
         convertCurrencies();
     }
-    public void setSecondCurrency(Currency secondCurrency){
+
+    public void setSecondCurrency(Currency secondCurrency) {
         this.secondCurrency = secondCurrency;
         convertCurrencies();
     }
@@ -100,8 +95,8 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
         }
     }
 
-    public void setValueToConvert(String  valueToConvert) {
-        if (valueToConvert.isEmpty()){
+    public void setValueToConvert(String valueToConvert) {
+        if (valueToConvert.isEmpty()) {
             this.valueToConvert = 0;
         } else {
             this.valueToConvert = Double.parseDouble(valueToConvert);
@@ -109,20 +104,30 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
         convertCurrencies();
     }
 
-
     public void replaceCurrencies(){
+        int firstCurrencyIndex = mCurrencies.indexOf(firstCurrency);
+        int secondCurrencyIndex = mCurrencies.indexOf(secondCurrency);
 
+        Currency tempCurrency = firstCurrency;
+        firstCurrency = secondCurrency;
+        secondCurrency = tempCurrency;
+
+        if (homeView != null) {
+            getMainHandler().post(() -> {
+                homeView.replaceCurrencies(firstCurrencyIndex, secondCurrencyIndex);
+            });
+        }
     }
 
 
-    public void convertCurrencies(){
-        if (firstCurrency == null || secondCurrency == null){
+    public void convertCurrencies() {
+        if (firstCurrency == null || secondCurrency == null) {
             return;
         }
         double result = CurrencyUtils.getPrice(firstCurrency, secondCurrency, valueToConvert);
         final String moneyString = getString(result);
-        if (homeView != null){
-            getMainHandler().post(() ->{
+        if (homeView != null) {
+            getMainHandler().post(() -> {
                 homeView.calculationIsReady(moneyString);
             });
         }

@@ -12,4 +12,6 @@ public interface HomeActivityView extends BaseView{
     void dataIsReady(List<Currency> currencies);
 
     void calculationIsReady(String result);
+
+    void replaceCurrencies(int firstCurrencyPosition , int secondCurrencyPosition);
 }
