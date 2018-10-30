@@ -2,7 +2,7 @@ package calc.currency.com.currencycalculator.database;
 
 public interface DbConstants {
 
-    interface CurrencyTable{
+    interface CurrencyTable {
         String TABLE_NAME = "currency";
         String COLUMN_ID = "id";
         String COLUMN_NUM_CODE = "num_code";

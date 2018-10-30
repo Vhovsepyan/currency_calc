@@ -16,7 +16,7 @@ public class StorageServiceImpl implements StorageService {
 
     private final DbHelper dbHelper;
 
-    public StorageServiceImpl(DbHelper dbHelper){
+    public StorageServiceImpl(DbHelper dbHelper) {
         this.dbHelper = dbHelper;
     }
 
@@ -33,7 +33,7 @@ public class StorageServiceImpl implements StorageService {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String selection = DbConstants.CurrencyTable.COLUMN_ID + " = ?";
-        String[] selectionArgs = { id };
+        String[] selectionArgs = {id};
 
         Cursor cursor = db.query(
                 DbConstants.CurrencyTable.TABLE_NAME,
@@ -44,13 +44,12 @@ public class StorageServiceImpl implements StorageService {
                 null,
                 null);
 
-        if (cursor != null ){
-            if (cursor.moveToFirst()){
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
                 currency = new Currency(cursor);
             }
             cursor.close();
         }
-
 
 
         return currency;
@@ -62,7 +61,7 @@ public class StorageServiceImpl implements StorageService {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String selection = DbConstants.CurrencyTable.COLUMN_CHAR_CODE + " = ?";
-        String[] selectionArgs = { charCode.toUpperCase() };
+        String[] selectionArgs = {charCode.toUpperCase()};
 
         Cursor cursor = db.query(
                 DbConstants.CurrencyTable.TABLE_NAME,
@@ -73,8 +72,8 @@ public class StorageServiceImpl implements StorageService {
                 null,
                 null);
 
-        if (cursor != null ){
-            if (cursor.moveToFirst()){
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
                 currency = new Currency(cursor);
             }
             cursor.close();
@@ -97,8 +96,8 @@ public class StorageServiceImpl implements StorageService {
                 null,
                 null);
 
-        if (cursor != null ){
-            while (cursor.moveToNext()){
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
                 Currency currency = new Currency(cursor);
                 currencies.add(currency);
             }
@@ -108,7 +107,7 @@ public class StorageServiceImpl implements StorageService {
         return currencies;
     }
 
-    private ContentValues getCurrencyContentValues(Currency currency){
+    private ContentValues getCurrencyContentValues(Currency currency) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbConstants.CurrencyTable.COLUMN_ID, currency.getId());
         contentValues.put(DbConstants.CurrencyTable.COLUMN_CHAR_CODE, currency.getCharCode());

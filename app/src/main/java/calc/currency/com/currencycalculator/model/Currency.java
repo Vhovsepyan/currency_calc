@@ -35,7 +35,7 @@ public class Currency {
         super();
     }
 
-    public Currency(Cursor cursor){
+    public Currency(Cursor cursor) {
         int idIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_ID);
         int numCodeIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_NUM_CODE);
         int charCodeIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_CHAR_CODE);
@@ -124,6 +124,7 @@ public class Currency {
 
     @Override
     public int hashCode() {
+
         return Objects.hash(getId(), getNumCode(), getCharCode(), getNominal(), getName(), getValue());
     }
 

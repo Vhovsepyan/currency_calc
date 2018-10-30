@@ -8,8 +8,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
 import calc.currency.com.currencycalculator.http.HttpResponseListener;
 import calc.currency.com.currencycalculator.http.RequestHelper;
@@ -17,39 +16,16 @@ import calc.currency.com.currencycalculator.http.RequestHelperImpl;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.model.CurrencyList;
 import calc.currency.com.currencycalculator.service.StorageService;
-import calc.currency.com.currencycalculator.view.HomeActivity;
 import calc.currency.com.currencycalculator.view.HomeActivityView;
 import utils.CurrencyUtils;
 
-public class HomePresenter extends BasePresenter<HomeActivity> {
+public class HomePresenter extends BasePresenter {
+    private final Executor executor;
     private volatile HomeActivityView homeView;
-    private Currency firstCurrency;
-    private Currency secondCurrency;
+    private Currency fromCurrency;
+    private Currency toCurrency;
     private double valueToConvert;
     private List<Currency> mCurrencies = new ArrayList<>();
-
-
-    public HomePresenter(HomeActivityView homeView, StorageService storageService) {
-        super(storageService);
-        this.homeView = homeView;
-
-    }
-
-    public void start() {
-        homeView.showLoader();
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(this::getCurrenciesFromAPI);
-    }
-
-    public void stop() {
-        homeView = null;
-    }
-
-    private void getCurrenciesFromAPI() {
-        RequestHelper requestHelper = new RequestHelperImpl();
-        requestHelper.getCurrencies(responseListener);
-    }
-
     private HttpResponseListener<CurrencyList> responseListener = new HttpResponseListener<CurrencyList>() {
         @Override
         public void onSuccess(CurrencyList obj) {
@@ -64,7 +40,7 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
             Collections.sort(mCurrencies, (o1, o2) -> o1.getCharCode().compareTo(o2.getCharCode()));
 
             getMainHandler().post(() -> {
-                if (homeView != null){
+                if (homeView != null) {
                     homeView.dataIsReady(mCurrencies);
                     homeView.dismissLoader();
                 }
@@ -74,12 +50,28 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
         @Override
         public void onError(String errorMessage) {
             getMainHandler().post(() -> {
-                if (homeView != null){
+                if (homeView != null) {
                     homeView.dismissLoader();
                 }
             });
         }
     };
+
+    public HomePresenter(HomeActivityView homeView, StorageService storageService, Executor executor) {
+        super(storageService);
+        this.homeView = homeView;
+        this.executor = executor;
+    }
+
+    public void start() {
+        homeView.showLoader();
+        executor.execute(this::getCurrenciesFromAPI);
+    }
+
+    public void stop() {
+        homeView = null;
+        getMainHandler().removeCallbacksAndMessages(null);
+    }
 
     private Currency getCurrencyRub(){
         Currency rub = new Currency();
@@ -92,13 +84,18 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
         return rub;
     }
 
-    public void setFirstCurrency(Currency firstCurrency) {
-        this.firstCurrency = firstCurrency;
+    private void getCurrenciesFromAPI() {
+        RequestHelper<CurrencyList> requestHelper = new RequestHelperImpl();
+        requestHelper.getCurrencies(responseListener);
+    }
+
+    public void setFromCurrency(Currency fromCurrency) {
+        this.fromCurrency = fromCurrency;
         convertCurrencies();
     }
 
-    public void setSecondCurrency(Currency secondCurrency) {
-        this.secondCurrency = secondCurrency;
+    public void setToCurrency(Currency toCurrency) {
+        this.toCurrency = toCurrency;
         convertCurrencies();
     }
 
@@ -120,32 +117,28 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
         convertCurrencies();
     }
 
-    public void replaceCurrencies(){
-        int firstCurrencyIndex = mCurrencies.indexOf(firstCurrency);
-        int secondCurrencyIndex = mCurrencies.indexOf(secondCurrency);
+    public void replaceCurrencies() {
+        int firstCurrencyIndex = mCurrencies.indexOf(fromCurrency);
+        int secondCurrencyIndex = mCurrencies.indexOf(toCurrency);
 
-        Currency tempCurrency = firstCurrency;
-        firstCurrency = secondCurrency;
-        secondCurrency = tempCurrency;
+        Currency tempCurrency = fromCurrency;
+        fromCurrency = toCurrency;
+        toCurrency = tempCurrency;
 
         if (homeView != null) {
-            getMainHandler().post(() -> {
-                homeView.replaceCurrencies(firstCurrencyIndex, secondCurrencyIndex);
-            });
+            getMainHandler().post(() -> homeView.replaceCurrencies(firstCurrencyIndex, secondCurrencyIndex));
         }
     }
 
 
     public void convertCurrencies() {
-        if (firstCurrency == null || secondCurrency == null) {
+        if (fromCurrency == null || toCurrency == null) {
             return;
         }
-        double result = CurrencyUtils.getPrice(firstCurrency, secondCurrency, valueToConvert);
+        double result = CurrencyUtils.getPrice(fromCurrency, toCurrency, valueToConvert);
         final String moneyString = getString(result);
         if (homeView != null) {
-            getMainHandler().post(() -> {
-                homeView.calculationIsReady(moneyString);
-            });
+            getMainHandler().post(() -> homeView.calculationIsReady(moneyString));
         }
     }
 

@@ -14,8 +14,8 @@ import calc.currency.com.currencycalculator.R;
 import calc.currency.com.currencycalculator.model.Currency;
 
 public class CurrencyAdapter extends ArrayAdapter {
-    private List<Currency> currencies;
     private final LayoutInflater inflater;
+    private List<Currency> currencies;
 
     public CurrencyAdapter(Context context, int resource, @NonNull List<Currency> currencies) {
         super(context, resource);
@@ -25,9 +25,9 @@ public class CurrencyAdapter extends ArrayAdapter {
 
     @NonNull
     @Override
-    public View getView(int position, View convertView,@NonNull ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         ViewHolder view = null;
-        if (convertView == null){
+        if (convertView == null) {
             convertView = inflater.inflate(R.layout.currency_adapter_item, parent, false);
             view = new ViewHolder();
             view.charCode = convertView.findViewById(R.id.currency_char_code);
@@ -55,7 +55,7 @@ public class CurrencyAdapter extends ArrayAdapter {
         return currencies.get(position);
     }
 
-    private static class ViewHolder{
+    private static class ViewHolder {
         public TextView charCode;
 
     }

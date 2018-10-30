@@ -14,14 +14,15 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import calc.currency.com.currencycalculator.CurrencyApplication;
 import calc.currency.com.currencycalculator.R;
 import calc.currency.com.currencycalculator.adapter.CurrencyAdapter;
 import calc.currency.com.currencycalculator.database.DbHelper;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.presenter.HomePresenter;
+import calc.currency.com.currencycalculator.service.ExecutorProvider;
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 
 public class HomeActivity extends AppCompatActivity implements HomeActivityView {
@@ -34,19 +35,60 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
     private TextView resultTextView;
     private ImageView replaceIcon;
     private FrameLayout progressLayout;
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            homePresenter.setValueToConvert(s.toString());
+        }
+    };
+    private AdapterView.OnItemSelectedListener firstSpinnerListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            homePresenter.setFromCurrency((Currency) firstSpinner.getAdapter().getItem(position));
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+    private AdapterView.OnItemSelectedListener secondSpinnerListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            homePresenter.setToCurrency((Currency) secondSpinner.getAdapter().getItem(position));
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+    private View.OnClickListener replaceClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            homePresenter.replaceCurrencies();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        homePresenter = new HomePresenter(this, new StorageServiceImpl(DbHelper.getInstance()));
+        CurrencyApplication application = (CurrencyApplication) getApplication();
+        ExecutorProvider executorProvider = application.getExecutorProvider();
+        homePresenter = new HomePresenter(this, new StorageServiceImpl(DbHelper.getInstance()), executorProvider.getIOExecutor());
 
         firstSpinner = findViewById(R.id.first_spinner);
-        firstSpinner.setOnItemSelectedListener(firstSpinnerListener);
         secondSpinner = findViewById(R.id.second_spinner);
-        secondSpinner.setOnItemSelectedListener(secondSpinnerListener);
-
         firstEditText = findViewById(R.id.first_edit_text);
         resultTextView = findViewById(R.id.summary_text_view);
         replaceIcon = findViewById(R.id.equals_or_replace_icon);
@@ -95,55 +137,10 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         adapter = new CurrencyAdapter(this, R.layout.currency_adapter_item, currencies);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         firstSpinner.setAdapter(adapter);
+        firstSpinner.setOnItemSelectedListener(firstSpinnerListener);
         secondSpinner.setAdapter(adapter);
+        secondSpinner.setOnItemSelectedListener(secondSpinnerListener);
     }
-
-    private TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            homePresenter.setValueToConvert(s.toString());
-        }
-    };
-
-
-    private AdapterView.OnItemSelectedListener firstSpinnerListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            homePresenter.setFirstCurrency((Currency) firstSpinner.getAdapter().getItem(position));
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-    private AdapterView.OnItemSelectedListener secondSpinnerListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            homePresenter.setSecondCurrency((Currency) secondSpinner.getAdapter().getItem(position));
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-
-    private View.OnClickListener replaceClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            homePresenter.replaceCurrencies();
-        }
-    };
 
     @Override
     public boolean isAlive() {

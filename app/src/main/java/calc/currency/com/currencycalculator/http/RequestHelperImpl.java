@@ -14,14 +14,13 @@ import java.net.URLConnection;
 
 import calc.currency.com.currencycalculator.model.CurrencyList;
 
-public class RequestHelperImpl implements RequestHelper {
+public class RequestHelperImpl implements RequestHelper<CurrencyList> {
 
     @Nullable
     private URLConnection getConnection(String stringUrl) {
         URLConnection urlConnection = null;
-        URL url = null;
         try {
-            url = new URL(stringUrl);
+            URL url = new URL(stringUrl);
             urlConnection = url.openConnection();
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -44,7 +43,7 @@ public class RequestHelperImpl implements RequestHelper {
     }
 
     @Override
-    public void getCurrencies(HttpResponseListener responseListener) {
+    public void getCurrencies(HttpResponseListener<CurrencyList> responseListener) {
         Serializer serializer = new Persister();
         InputStream inputStream = getInputStream(HttpConstants.CURRENCIES_URL);
         CurrencyList currencies = null;

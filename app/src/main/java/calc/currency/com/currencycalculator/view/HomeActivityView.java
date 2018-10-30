@@ -4,7 +4,7 @@ import java.util.List;
 
 import calc.currency.com.currencycalculator.model.Currency;
 
-public interface HomeActivityView extends BaseView{
+public interface HomeActivityView extends BaseView {
     void showLoader();
 
     void dismissLoader();
@@ -13,5 +13,5 @@ public interface HomeActivityView extends BaseView{
 
     void calculationIsReady(String result);
 
-    void replaceCurrencies(int firstCurrencyPosition , int secondCurrencyPosition);
+    void replaceCurrencies(int firstCurrencyPosition, int secondCurrencyPosition);
 }
