@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class ExampleInstrumentedTest {
+public class StorageServiceTest {
     private StorageService storageService;
     private Context mContext;
 
@@ -57,27 +57,5 @@ public class ExampleInstrumentedTest {
         Currency newCurrency = storageService.getCurrencyById(currency.getCurrencyId());
 
         assertTrue(currency.equals(newCurrency));
-    }
-
-    @Test
-    public void dbCurrencyUpdateTest() {
-        Currency currency = new Currency();
-        currency.setCharCode("USD");
-        currency.setCurrencyId("R0101");
-        currency.setName("Dollar USA");
-        currency.setNominal(1);
-        currency.setNumCode(456);
-        currency.setValue(String.valueOf(45.32));
-
-        storageService.inserCurrency(currency);
-
-        Currency newCurrency = storageService.getCurrencyById(currency.getCurrencyId());
-
-        newCurrency.setValue(String.valueOf(12.5));
-    }
-
-    @Test
-    public void getCurrenciesFromAPITest() {
-
     }
 }

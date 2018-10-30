@@ -144,6 +144,6 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
 
     @Override
     public boolean isAlive() {
-        return getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.DESTROYED);
+        return getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.CREATED);
     }
 }
