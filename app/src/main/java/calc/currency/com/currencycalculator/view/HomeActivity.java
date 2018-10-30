@@ -37,6 +37,11 @@ import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 
 public class HomeActivity extends AppCompatActivity implements HomeActivityView {
 
+    private final String FIRST_CURRENCY_KEY = "FIRST_CURRENCY_KEY";
+    private final String SECOND_CURRENCY_KEY = "SECOND_CURRENCY_KEY";
+    int firstCurrencyPosition ;
+    int secondCurrencyPosition ;
+
     private HomePresenter homePresenter;
     private Spinner firstSpinner;
     private Spinner secondSpinner;
@@ -111,6 +116,11 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         replaceIcon.setOnClickListener(replaceClickListener);
         progressLayout = findViewById(R.id.progress_layout);
 
+        if (savedInstanceState != null){
+            firstCurrencyPosition = savedInstanceState.getInt(FIRST_CURRENCY_KEY);
+            secondCurrencyPosition = savedInstanceState.getInt(SECOND_CURRENCY_KEY);
+        }
+
         homePresenter.start();
     }
 
@@ -164,12 +174,21 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         firstSpinner.setAdapter(adapter);
         firstSpinner.setOnItemSelectedListener(firstSpinnerListener);
+        firstSpinner.setSelection(firstCurrencyPosition);
         secondSpinner.setAdapter(adapter);
         secondSpinner.setOnItemSelectedListener(secondSpinnerListener);
+        secondSpinner.setSelection(secondCurrencyPosition);
     }
 
     @Override
     public boolean isAlive() {
         return getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.CREATED);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(FIRST_CURRENCY_KEY, firstSpinner.getSelectedItemPosition());
+        outState.putInt(SECOND_CURRENCY_KEY, secondSpinner.getSelectedItemPosition());
+        super.onSaveInstanceState(outState);
     }
 }
