@@ -32,7 +32,7 @@ public class StorageServiceImpl implements StorageService {
         Currency currency = null;
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String selection = DbConstants.CurrencyTable.COLUMN_ID + " = ?";
+        String selection = DbConstants.CurrencyTable.COLUMN_CURRENCY_ID + " = ?";
         String[] selectionArgs = {id};
 
         Cursor cursor = db.query(
@@ -110,6 +110,7 @@ public class StorageServiceImpl implements StorageService {
     private ContentValues getCurrencyContentValues(Currency currency) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbConstants.CurrencyTable.COLUMN_ID, currency.getId());
+        contentValues.put(DbConstants.CurrencyTable.COLUMN_CURRENCY_ID, currency.getCurrencyId());
         contentValues.put(DbConstants.CurrencyTable.COLUMN_CHAR_CODE, currency.getCharCode());
         contentValues.put(DbConstants.CurrencyTable.COLUMN_NAME, currency.getName());
         contentValues.put(DbConstants.CurrencyTable.COLUMN_NOMINAL, currency.getNominal());

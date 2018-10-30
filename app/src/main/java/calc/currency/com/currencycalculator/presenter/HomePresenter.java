@@ -30,14 +30,15 @@ public class HomePresenter extends BasePresenter {
         @Override
         public void onSuccess(CurrencyList obj) {
             if (obj != null) {
-                insertOrUpdateCurrencies(obj);
+                addCurrencyRub(obj.getCurrencies());
+
                 mCurrencies.addAll(obj.getCurrencies());
+                Collections.sort(mCurrencies, (o1, o2) -> o1.getCharCode().compareTo(o2.getCharCode()));
+
+                insertOrUpdateCurrencies(mCurrencies);
             } else {
                 mCurrencies.addAll(getStorageService().getAllCurrencies());
             }
-            mCurrencies.add(getCurrencyRub());
-
-            Collections.sort(mCurrencies, (o1, o2) -> o1.getCharCode().compareTo(o2.getCharCode()));
 
             getMainHandler().post(() -> {
                 if (homeView != null) {
@@ -73,9 +74,13 @@ public class HomePresenter extends BasePresenter {
         getMainHandler().removeCallbacksAndMessages(null);
     }
 
-    private Currency getCurrencyRub(){
+    private void addCurrencyRub(List<Currency> currencies) {
+        currencies.add(getCurrencyRub());
+    }
+
+    private Currency getCurrencyRub() {
         Currency rub = new Currency();
-        rub.setId("");
+        rub.setCurrencyId("");
         rub.setCharCode("RUB");
         rub.setName("Рубль");
         rub.setNominal(1);
@@ -99,11 +104,12 @@ public class HomePresenter extends BasePresenter {
         convertCurrencies();
     }
 
-    private void insertOrUpdateCurrencies(@NonNull CurrencyList currencyList) {
-        List<Currency> currencies = currencyList.getCurrencies();
-        if (currencies != null && !currencies.isEmpty()) {
-            for (int i = 0; i < currencies.size(); i++) {
-                getStorageService().inserCurrency(currencies.get(i));
+    private void insertOrUpdateCurrencies(@NonNull List<Currency> currencyList) {
+        if (currencyList != null && !currencyList.isEmpty()) {
+            for (int i = 0; i < currencyList.size(); i++) {
+                Currency currency = currencyList.get(i);
+                currency.setId(i);
+                getStorageService().inserCurrency(currency);
             }
         }
     }

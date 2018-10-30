@@ -38,10 +38,11 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private void createCurrencyTable(SQLiteDatabase db) {
         String sqlQuery = "CREATE TABLE " + DbConstants.CurrencyTable.TABLE_NAME + " ("
-                + DbConstants.CurrencyTable.COLUMN_ID + " TEXT,"
-                + DbConstants.CurrencyTable.COLUMN_NUM_CODE + " INTEGER,"
+                + DbConstants.CurrencyTable.COLUMN_ID + " INT PRIMARY KEY,"
+                + DbConstants.CurrencyTable.COLUMN_CURRENCY_ID + " TEXT,"
+                + DbConstants.CurrencyTable.COLUMN_NUM_CODE + " INT,"
                 + DbConstants.CurrencyTable.COLUMN_CHAR_CODE + " TEXT,"
-                + DbConstants.CurrencyTable.COLUMN_NOMINAL + " INTEGER,"
+                + DbConstants.CurrencyTable.COLUMN_NOMINAL + " INT,"
                 + DbConstants.CurrencyTable.COLUMN_NAME + " TEXT,"
                 + DbConstants.CurrencyTable.COLUMN_VALUE + " TEXT)";
 

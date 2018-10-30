@@ -15,7 +15,7 @@ import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.service.StorageService;
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -28,7 +28,7 @@ public class ExampleInstrumentedTest {
     private Context mContext;
 
     @Before
-    public void init(){
+    public void init() {
         mContext = InstrumentationRegistry.getTargetContext();
         DbHelper.initDatabase(mContext);
         DbHelper helper = DbHelper.getInstance();
@@ -37,7 +37,7 @@ public class ExampleInstrumentedTest {
 
 
     @Test
-    public void getAllCurrencies(){
+    public void getAllCurrencies() {
         List<Currency> currencies = storageService.getAllCurrencies();
         assertTrue(currencies.size() < 0);
     }
@@ -46,7 +46,7 @@ public class ExampleInstrumentedTest {
     public void dbCurrencyReadWriteTest() {
         Currency currency = new Currency();
         currency.setCharCode("USD");
-        currency.setId("R0101");
+        currency.setCurrencyId("R0101");
         currency.setName("Dollar USA");
         currency.setNominal(1);
         currency.setNumCode(456);
@@ -54,16 +54,16 @@ public class ExampleInstrumentedTest {
 
         storageService.inserCurrency(currency);
 
-        Currency newCurrency = storageService.getCurrencyById(currency.getId());
+        Currency newCurrency = storageService.getCurrencyById(currency.getCurrencyId());
 
         assertTrue(currency.equals(newCurrency));
     }
 
     @Test
-    public void dbCurrencyUpdateTest(){
+    public void dbCurrencyUpdateTest() {
         Currency currency = new Currency();
         currency.setCharCode("USD");
-        currency.setId("R0101");
+        currency.setCurrencyId("R0101");
         currency.setName("Dollar USA");
         currency.setNominal(1);
         currency.setNumCode(456);
@@ -71,13 +71,13 @@ public class ExampleInstrumentedTest {
 
         storageService.inserCurrency(currency);
 
-        Currency newCurrency = storageService.getCurrencyById(currency.getId());
+        Currency newCurrency = storageService.getCurrencyById(currency.getCurrencyId());
 
         newCurrency.setValue(String.valueOf(12.5));
     }
 
     @Test
-    public void getCurrenciesFromAPITest(){
+    public void getCurrenciesFromAPITest() {
 
     }
 }

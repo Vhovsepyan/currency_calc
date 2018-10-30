@@ -13,8 +13,10 @@ import calc.currency.com.currencycalculator.database.DbConstants;
 @Root(name = "Valute")
 public class Currency {
 
+    private int id;
+
     @Attribute(name = "ID")
-    private String id;
+    private String currencyId;
 
     @Element(name = "NumCode")
     private int numCode;
@@ -37,13 +39,15 @@ public class Currency {
 
     public Currency(Cursor cursor) {
         int idIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_ID);
+        int currIdIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_CURRENCY_ID);
         int numCodeIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_NUM_CODE);
         int charCodeIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_CHAR_CODE);
         int nominalIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_NOMINAL);
         int nameIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_NAME);
         int valueIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_VALUE);
 
-        this.id = cursor.getString(idIndex);
+        this.id = cursor.getInt(idIndex);
+        this.currencyId = cursor.getString(currIdIndex);
         this.numCode = cursor.getInt(numCodeIndex);
         this.charCode = cursor.getString(charCodeIndex);
         this.nominal = cursor.getInt(nominalIndex);
@@ -53,20 +57,28 @@ public class Currency {
 
     }
 
-    public Currency(String id, int numCode, int nominal, String name, String value) {
-        this.id = id;
+    public Currency(String currencyId, int numCode, int nominal, String name, String value) {
+        this.currencyId = currencyId;
         this.numCode = numCode;
         this.nominal = nominal;
         this.name = name;
         this.value = value;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getCurrencyId() {
+        return currencyId;
+    }
+
+    public void setCurrencyId(String currencyId) {
+        this.currencyId = currencyId;
     }
 
     public int getNumCode() {
@@ -116,7 +128,7 @@ public class Currency {
         Currency currency = (Currency) o;
         return getNumCode() == currency.getNumCode() &&
                 getNominal() == currency.getNominal() &&
-                Objects.equals(getId(), currency.getId()) &&
+                Objects.equals(getCurrencyId(), currency.getCurrencyId()) &&
                 Objects.equals(getCharCode(), currency.getCharCode()) &&
                 Objects.equals(getName(), currency.getName()) &&
                 Objects.equals(getValue(), currency.getValue());
@@ -125,13 +137,13 @@ public class Currency {
     @Override
     public int hashCode() {
 
-        return Objects.hash(getId(), getNumCode(), getCharCode(), getNominal(), getName(), getValue());
+        return Objects.hash(getCurrencyId(), getNumCode(), getCharCode(), getNominal(), getName(), getValue());
     }
 
     @Override
     public String toString() {
         return "Currency{" +
-                "id='" + id + '\'' +
+                "currencyId='" + currencyId + '\'' +
                 ", numCode=" + numCode +
                 ", charCode='" + charCode + '\'' +
                 ", nominal=" + nominal +
