@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
+import calc.currency.com.currencycalculator.exception.CouldNotConvertException;
 import calc.currency.com.currencycalculator.model.Currency;
 
 public class CurrencyUtils {
@@ -31,7 +32,13 @@ public class CurrencyUtils {
 
     };
 
-    public static double getPrice(Currency first, Currency second, double amount){
+    public static double getPrice(Currency first, Currency second, double amount) throws CouldNotConvertException{
+        if(first == null || second == null){
+            return -1;
+        }
+        if (amount < 0){
+            throw new CouldNotConvertException("Could not Convert amount < 0");
+        }
         double firstValue = valueStringToDouble(first.getValue());
         double secondValue = valueStringToDouble(second.getValue());
         return  amount * (firstValue * second.getNominal()) / (first.getNominal() * secondValue);

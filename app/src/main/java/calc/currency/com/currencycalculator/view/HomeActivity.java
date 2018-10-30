@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -73,6 +74,7 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
     private AdapterView.OnItemSelectedListener secondSpinnerListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            homePresenter.setValueToConvert(firstEditText.getText().toString());
             homePresenter.setToCurrency((Currency) secondSpinner.getAdapter().getItem(position));
         }
 
@@ -145,6 +147,16 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
     public void replaceCurrencies(int firstCurrencyPosition, int secondCurrencyPosition) {
         firstSpinner.setSelection(secondCurrencyPosition);
         secondSpinner.setSelection(firstCurrencyPosition);
+    }
+
+    @Override
+    public void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showToast(int resId) {
+        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show();
     }
 
     private void initAdapter(List<Currency> currencies) {

@@ -61,19 +61,16 @@ public class HomePresenterTest {
     @Test
     public void startTest() {
         final int[] dataIsReadyCount = {0};
-        final int[] showLoaderCount = {0};
         final int[] calculationIsReadyCount = {0};
-        final int[] isAliveCount = {0};
 
         Currency currencyUSD = storageService.getCurrencyByCharCode("USD");
         Currency currencyAMD = storageService.getCurrencyByCharCode("AMD");
 
-        CountDownLatch l = new CountDownLatch(1);
+        CountDownLatch l = new CountDownLatch(2);
 
         HomePresenter presenter = new HomePresenter(new HomeActivityView() {
             @Override
             public void showLoader() {
-                showLoaderCount[0]++;
             }
 
             @Override
@@ -89,6 +86,7 @@ public class HomePresenterTest {
 
             @Override
             public void calculationIsReady(String result) {
+                l.countDown();
                 calculationIsReadyCount[0]++;
                 Log.i("tttt_log", "calculationIsReady calcCount = " + calculationIsReadyCount[0]);
             }
@@ -99,8 +97,17 @@ public class HomePresenterTest {
             }
 
             @Override
+            public void showToast(String msg) {
+
+            }
+
+            @Override
+            public void showToast(int resId) {
+
+            }
+
+            @Override
             public boolean isAlive() {
-                isAliveCount[0]++;
                 return false;
             }
         }, delegateExecutor, currencyDataSource);
@@ -109,6 +116,7 @@ public class HomePresenterTest {
 
         presenter.setFromCurrency(currencyAMD);
         presenter.setToCurrency(currencyUSD);
+
         try {
             l.await();
         } catch (InterruptedException e) {
@@ -117,12 +125,7 @@ public class HomePresenterTest {
 
         assertTrue(dataIsReadyCount[0] == 1);
         assertTrue(calculationIsReadyCount[0] == 1);
-        Log.i("tttt_log", " 1 calcCount = " + calculationIsReadyCount[0]);
-        presenter.convertCurrencies();
 
-        assertTrue(dataIsReadyCount[0] == 1);
-        assertTrue(calculationIsReadyCount[0] == 1);
-        Log.i("tttt_log", " 2 calcCount = " + calculationIsReadyCount[0]);
     }
 
 }

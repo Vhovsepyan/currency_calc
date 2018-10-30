@@ -6,12 +6,14 @@ import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-import calc.currency.com.currencycalculator.service.DataSourceListener;
+import calc.currency.com.currencycalculator.R;
+import calc.currency.com.currencycalculator.exception.CouldNotConvertException;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.model.CurrencyList;
 import calc.currency.com.currencycalculator.service.CurrencyDataSource;
-import calc.currency.com.currencycalculator.view.HomeActivityView;
+import calc.currency.com.currencycalculator.service.DataSourceListener;
 import calc.currency.com.currencycalculator.utils.CurrencyUtils;
+import calc.currency.com.currencycalculator.view.HomeActivityView;
 
 public class HomePresenter extends BasePresenter {
     private final Executor executor;
@@ -105,7 +107,15 @@ public class HomePresenter extends BasePresenter {
         if (fromCurrency == null || toCurrency == null) {
             return;
         }
-        double result = CurrencyUtils.getPrice(fromCurrency, toCurrency, valueToConvert);
+        double result = 0;
+        try {
+            result = CurrencyUtils.getPrice(fromCurrency, toCurrency, valueToConvert);
+        } catch (CouldNotConvertException e) {
+            e.printStackTrace();
+            if (homeView != null){
+                getMainHandler().post(() -> homeView.showToast(R.string.less_than_zero_text));
+            }
+        }
         final String moneyString = CurrencyUtils.getString(result);
         if (homeView != null) {
             getMainHandler().post(() -> homeView.calculationIsReady(moneyString));

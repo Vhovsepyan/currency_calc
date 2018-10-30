@@ -40,7 +40,7 @@ public class StorageServiceTest {
     @Test
     public void getAllCurrencies() {
         List<Currency> currencies = storageService.getAllCurrencies();
-        assertTrue(currencies.size() < 0);
+        assertTrue(currencies.size() > 0);
     }
 
     @Test
