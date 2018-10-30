@@ -1,5 +1,7 @@
 package calc.currency.com.currencycalculator;
 
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
@@ -16,8 +18,14 @@ import calc.currency.com.currencycalculator.database.DbHelper;
 import calc.currency.com.currencycalculator.http.RequestHelper;
 import calc.currency.com.currencycalculator.http.RequestHelperImpl;
 import calc.currency.com.currencycalculator.model.Currency;
+import calc.currency.com.currencycalculator.model.CurrencyList;
 import calc.currency.com.currencycalculator.presenter.HomePresenter;
+import calc.currency.com.currencycalculator.service.CacheableCurrencyDataSource;
+import calc.currency.com.currencycalculator.service.CurrencyDataSource;
+import calc.currency.com.currencycalculator.service.CurrencyRepository;
 import calc.currency.com.currencycalculator.service.StorageService;
+import calc.currency.com.currencycalculator.service.impl.CacheableCurrencyDataSourceImpl;
+import calc.currency.com.currencycalculator.service.impl.RemoteCurrencyDataSource;
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 import calc.currency.com.currencycalculator.view.HomeActivityView;
 
@@ -31,14 +39,22 @@ public class HomePresenterTest {
     private StorageService storageService;
     private HomeActivityView activityView;
     private ExecutorService delegateExecutor;
-
+    private CurrencyDataSource currencyDataSource;
+    private Context mContext;
 
     @Before
     public void init() {
-        dbHelper = DbHelper.getInstance();
+        mContext = InstrumentationRegistry.getTargetContext();
+        dbHelper = DbHelper.getInstance(mContext);
         requestHelper = new RequestHelperImpl();
         storageService = new StorageServiceImpl(dbHelper);
         delegateExecutor = Executors.newSingleThreadExecutor();
+
+        StorageService storageService = new StorageServiceImpl(dbHelper);
+        RequestHelper<CurrencyList> requestHelper = new RequestHelperImpl();
+        CacheableCurrencyDataSource cacheableCurrencyDataSource = new CacheableCurrencyDataSourceImpl(storageService);
+        CurrencyDataSource remoteCurrencyDataSource = new RemoteCurrencyDataSource(requestHelper);
+        currencyDataSource = new CurrencyRepository(cacheableCurrencyDataSource, remoteCurrencyDataSource);
 
     }
 
@@ -87,7 +103,7 @@ public class HomePresenterTest {
                 isAliveCount[0]++;
                 return false;
             }
-        }, storageService, delegateExecutor);
+        }, delegateExecutor, currencyDataSource);
 
         presenter.start();
 

@@ -2,47 +2,34 @@ package calc.currency.com.currencycalculator.presenter;
 
 import android.support.annotation.NonNull;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-import calc.currency.com.currencycalculator.http.HttpResponseListener;
-import calc.currency.com.currencycalculator.http.RequestHelper;
-import calc.currency.com.currencycalculator.http.RequestHelperImpl;
+import calc.currency.com.currencycalculator.service.DataSourceListener;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.model.CurrencyList;
-import calc.currency.com.currencycalculator.service.StorageService;
+import calc.currency.com.currencycalculator.service.CurrencyDataSource;
 import calc.currency.com.currencycalculator.view.HomeActivityView;
-import utils.CurrencyUtils;
+import calc.currency.com.currencycalculator.utils.CurrencyUtils;
 
 public class HomePresenter extends BasePresenter {
     private final Executor executor;
+    private final CurrencyDataSource dataSource;
     private volatile HomeActivityView homeView;
     private Currency fromCurrency;
     private Currency toCurrency;
     private double valueToConvert;
-    private List<Currency> mCurrencies = new ArrayList<>();
-    private HttpResponseListener<CurrencyList> responseListener = new HttpResponseListener<CurrencyList>() {
+    private CopyOnWriteArrayList<Currency> mCurrencies = new CopyOnWriteArrayList<>();
+    private DataSourceListener<CurrencyList> responseListener = new DataSourceListener<CurrencyList>() {
         @Override
-        public void onSuccess(CurrencyList obj) {
-            if (obj != null) {
-                addCurrencyRub(obj.getCurrencies());
-
-                mCurrencies.addAll(obj.getCurrencies());
-                Collections.sort(mCurrencies, (o1, o2) -> o1.getCharCode().compareTo(o2.getCharCode()));
-
-                insertOrUpdateCurrencies(mCurrencies);
-            } else {
-                mCurrencies.addAll(getStorageService().getAllCurrencies());
-            }
-
+        public void onSuccess(@NonNull CurrencyList obj) {
+            mCurrencies.clear();
+            mCurrencies.addAll(obj.getCurrencies());
+            Collections.sort(mCurrencies, (o1, o2) -> o1.getCharCode().compareTo(o2.getCharCode()));
             getMainHandler().post(() -> {
                 if (homeView != null) {
-                    homeView.dataIsReady(mCurrencies);
+                    homeView.dataIsReady(mCurrencies);//TODO pass value CurrencyList ensted list, there is usefull information in CurrencyList object
                     homeView.dismissLoader();
                 }
             });
@@ -50,6 +37,7 @@ public class HomePresenter extends BasePresenter {
 
         @Override
         public void onError(String errorMessage) {
+            //TODO show the error message
             getMainHandler().post(() -> {
                 if (homeView != null) {
                     homeView.dismissLoader();
@@ -58,8 +46,9 @@ public class HomePresenter extends BasePresenter {
         }
     };
 
-    public HomePresenter(HomeActivityView homeView, StorageService storageService, Executor executor) {
-        super(storageService);
+    public HomePresenter(HomeActivityView homeView, Executor executor, CurrencyDataSource dataSource) {
+        super();
+        this.dataSource = dataSource;
         this.homeView = homeView;
         this.executor = executor;
     }
@@ -74,24 +63,9 @@ public class HomePresenter extends BasePresenter {
         getMainHandler().removeCallbacksAndMessages(null);
     }
 
-    private void addCurrencyRub(List<Currency> currencies) {
-        currencies.add(getCurrencyRub());
-    }
-
-    private Currency getCurrencyRub() {
-        Currency rub = new Currency();
-        rub.setCurrencyId("");
-        rub.setCharCode("RUB");
-        rub.setName("Рубль");
-        rub.setNominal(1);
-        rub.setNumCode(-1);
-        rub.setValue("1,0");
-        return rub;
-    }
 
     private void getCurrenciesFromAPI() {
-        RequestHelper<CurrencyList> requestHelper = new RequestHelperImpl();
-        requestHelper.getCurrencies(responseListener);
+        dataSource.getCurrencies(responseListener);
     }
 
     public void setFromCurrency(Currency fromCurrency) {
@@ -102,16 +76,6 @@ public class HomePresenter extends BasePresenter {
     public void setToCurrency(Currency toCurrency) {
         this.toCurrency = toCurrency;
         convertCurrencies();
-    }
-
-    private void insertOrUpdateCurrencies(@NonNull List<Currency> currencyList) {
-        if (currencyList != null && !currencyList.isEmpty()) {
-            for (int i = 0; i < currencyList.size(); i++) {
-                Currency currency = currencyList.get(i);
-                currency.setId(i);
-                getStorageService().inserCurrency(currency);
-            }
-        }
     }
 
     public void setValueToConvert(String valueToConvert) {
@@ -142,17 +106,11 @@ public class HomePresenter extends BasePresenter {
             return;
         }
         double result = CurrencyUtils.getPrice(fromCurrency, toCurrency, valueToConvert);
-        final String moneyString = getString(result);
+        final String moneyString = CurrencyUtils.getString(result);
         if (homeView != null) {
             getMainHandler().post(() -> homeView.calculationIsReady(moneyString));
         }
     }
 
-    private String getString(double result) {
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) formatter).getDecimalFormatSymbols();
-        decimalFormatSymbols.setCurrencySymbol("");
-        ((DecimalFormat) formatter).setDecimalFormatSymbols(decimalFormatSymbols);
-        return formatter.format(result);
-    }
+
 }

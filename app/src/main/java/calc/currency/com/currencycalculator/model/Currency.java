@@ -1,19 +1,16 @@
 package calc.currency.com.currencycalculator.model;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import java.util.Objects;
-
 import calc.currency.com.currencycalculator.database.DbConstants;
 
 @Root(name = "Valute")
 public class Currency {
-
-    private int id;
 
     @Attribute(name = "ID")
     private String currencyId;
@@ -38,7 +35,6 @@ public class Currency {
     }
 
     public Currency(Cursor cursor) {
-        int idIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_ID);
         int currIdIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_CURRENCY_ID);
         int numCodeIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_NUM_CODE);
         int charCodeIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_CHAR_CODE);
@@ -46,7 +42,6 @@ public class Currency {
         int nameIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_NAME);
         int valueIndex = cursor.getColumnIndex(DbConstants.CurrencyTable.COLUMN_VALUE);
 
-        this.id = cursor.getInt(idIndex);
         this.currencyId = cursor.getString(currIdIndex);
         this.numCode = cursor.getInt(numCodeIndex);
         this.charCode = cursor.getString(charCodeIndex);
@@ -63,14 +58,6 @@ public class Currency {
         this.nominal = nominal;
         this.name = name;
         this.value = value;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getCurrencyId() {
@@ -125,21 +112,31 @@ public class Currency {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Currency)) return false;
+
         Currency currency = (Currency) o;
-        return getNumCode() == currency.getNumCode() &&
-                getNominal() == currency.getNominal() &&
-                Objects.equals(getCurrencyId(), currency.getCurrencyId()) &&
-                Objects.equals(getCharCode(), currency.getCharCode()) &&
-                Objects.equals(getName(), currency.getName()) &&
-                Objects.equals(getValue(), currency.getValue());
+
+        if (numCode != currency.numCode) return false;
+        if (nominal != currency.nominal) return false;
+        if (currencyId != null ? !currencyId.equals(currency.currencyId) : currency.currencyId != null)
+            return false;
+        if (charCode != null ? !charCode.equals(currency.charCode) : currency.charCode != null)
+            return false;
+        if (name != null ? !name.equals(currency.name) : currency.name != null) return false;
+        return value != null ? value.equals(currency.value) : currency.value == null;
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(getCurrencyId(), getNumCode(), getCharCode(), getNominal(), getName(), getValue());
+        int result = currencyId != null ? currencyId.hashCode() : 0;
+        result = 31 * result + numCode;
+        result = 31 * result + (charCode != null ? charCode.hashCode() : 0);
+        result = 31 * result + nominal;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Currency{" +

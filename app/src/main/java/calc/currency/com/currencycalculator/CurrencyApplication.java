@@ -25,6 +25,5 @@ public class CurrencyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        DbHelper.initDatabase(getApplicationContext());
     }
 }

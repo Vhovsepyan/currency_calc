@@ -1,5 +1,6 @@
 package calc.currency.com.currencycalculator.http;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.simpleframework.xml.Serializer;
@@ -13,6 +14,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import calc.currency.com.currencycalculator.model.CurrencyList;
+import calc.currency.com.currencycalculator.service.DataSourceListener;
 
 public class RequestHelperImpl implements RequestHelper<CurrencyList> {
 
@@ -43,19 +45,18 @@ public class RequestHelperImpl implements RequestHelper<CurrencyList> {
     }
 
     @Override
-    public void getCurrencies(HttpResponseListener<CurrencyList> responseListener) {
+    public void getCurrencies(@NonNull DataSourceListener<CurrencyList> responseListener) {
         Serializer serializer = new Persister();
         InputStream inputStream = getInputStream(HttpConstants.CURRENCIES_URL);
-        CurrencyList currencies = null;
         try {
-            currencies = serializer.read(CurrencyList.class, inputStream);
+            CurrencyList currencies = serializer.read(CurrencyList.class, inputStream);
+            if (currencies == null) {
+                responseListener.onError("NO INTERNET");
+            } else {
+                responseListener.onSuccess(currencies);
+            }
         } catch (Exception e) {
             responseListener.onError(e.getMessage());
-            e.printStackTrace();
-        }
-
-        if (responseListener != null) {
-            responseListener.onSuccess(currencies);
         }
     }
 }

@@ -12,7 +12,9 @@ import java.util.List;
 
 import calc.currency.com.currencycalculator.database.DbHelper;
 import calc.currency.com.currencycalculator.model.Currency;
+import calc.currency.com.currencycalculator.service.CacheableCurrencyDataSource;
 import calc.currency.com.currencycalculator.service.StorageService;
+import calc.currency.com.currencycalculator.service.impl.CacheableCurrencyDataSourceImpl;
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 
 import static org.junit.Assert.assertTrue;
@@ -30,8 +32,7 @@ public class StorageServiceTest {
     @Before
     public void init() {
         mContext = InstrumentationRegistry.getTargetContext();
-        DbHelper.initDatabase(mContext);
-        DbHelper helper = DbHelper.getInstance();
+        DbHelper helper = DbHelper.getInstance(mContext);
         storageService = new StorageServiceImpl(helper);
     }
 
@@ -52,7 +53,7 @@ public class StorageServiceTest {
         currency.setNumCode(456);
         currency.setValue(String.valueOf(45.32));
 
-        storageService.inserCurrency(currency);
+        storageService.insertOrUpdateCurrency(currency);
 
         Currency newCurrency = storageService.getCurrencyById(currency.getCurrencyId());
 
