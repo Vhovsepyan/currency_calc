@@ -20,7 +20,8 @@ public class CurrencyUtils {
         symbols.setGroupingSeparator(' ');
         df.setDecimalFormatSymbols(symbols);
         try {
-            return (double) df.parse(value);
+            Number number = df.parse(value);
+            return number.doubleValue();
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -65,6 +65,11 @@ public class HomePresenterTest {
             }
 
             @Override
+            public void replaceCurrencies(int firstCurrencyPosition, int secondCurrencyPosition) {
+
+            }
+
+            @Override
             public boolean isAlive() {
                 isAliveCount[0]++;
                 return false;

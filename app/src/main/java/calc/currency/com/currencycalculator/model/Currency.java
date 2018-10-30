@@ -13,22 +13,22 @@ import calc.currency.com.currencycalculator.database.DbConstants;
 @Root(name = "Valute")
 public class Currency {
 
-    @Attribute(name = "ID" , required = false)
+    @Attribute(name = "ID")
     private String id;
 
-    @Element(name = "NumCode", required = false)
+    @Element(name = "NumCode")
     private int numCode;
 
     @Element(name = "CharCode")
     private String charCode;
 
-    @Element(name = "Nominal", required = false)
+    @Element(name = "Nominal")
     private int nominal;
 
-    @Element(name = "Name", required = false)
+    @Element(name = "Name")
     private String name;
 
-    @Element(name = "Value", required = false)
+    @Element(name = "Value")
     private String value;
 
     public Currency() {
@@ -124,7 +124,6 @@ public class Currency {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(getId(), getNumCode(), getCharCode(), getNominal(), getName(), getValue());
     }
 

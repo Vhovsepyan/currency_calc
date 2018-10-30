@@ -43,7 +43,10 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         homePresenter = new HomePresenter(this, new StorageServiceImpl(DbHelper.getInstance()));
 
         firstSpinner = findViewById(R.id.first_spinner);
+        firstSpinner.setOnItemSelectedListener(firstSpinnerListener);
         secondSpinner = findViewById(R.id.second_spinner);
+        secondSpinner.setOnItemSelectedListener(secondSpinnerListener);
+
         firstEditText = findViewById(R.id.first_edit_text);
         resultTextView = findViewById(R.id.summary_text_view);
         replaceIcon = findViewById(R.id.equals_or_replace_icon);
@@ -92,9 +95,7 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         adapter = new CurrencyAdapter(this, R.layout.currency_adapter_item, currencies);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         firstSpinner.setAdapter(adapter);
-        firstSpinner.setOnItemSelectedListener(firstSpinnerListener);
         secondSpinner.setAdapter(adapter);
-        secondSpinner.setOnItemSelectedListener(secondSpinnerListener);
     }
 
     private TextWatcher textWatcher = new TextWatcher() {

@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,6 +59,10 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
             } else {
                 mCurrencies.addAll(getStorageService().getAllCurrencies());
             }
+            mCurrencies.add(getCurrencyRub());
+
+            Collections.sort(mCurrencies, (o1, o2) -> o1.getCharCode().compareTo(o2.getCharCode()));
+
             getMainHandler().post(() -> {
                 if (homeView != null){
                     homeView.dataIsReady(mCurrencies);
@@ -75,6 +80,17 @@ public class HomePresenter extends BasePresenter<HomeActivity> {
             });
         }
     };
+
+    private Currency getCurrencyRub(){
+        Currency rub = new Currency();
+        rub.setId("");
+        rub.setCharCode("RUB");
+        rub.setName("Рубль");
+        rub.setNominal(1);
+        rub.setNumCode(-1);
+        rub.setValue("1,0");
+        return rub;
+    }
 
     public void setFirstCurrency(Currency firstCurrency) {
         this.firstCurrency = firstCurrency;
