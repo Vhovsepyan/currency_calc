@@ -55,7 +55,11 @@ public class RequestHelperImpl implements RequestHelper<CurrencyList> {
         }
 
         if (responseListener != null) {
-            responseListener.onSuccess(currencies);
+            if (currencies == null) {
+                responseListener.onError("NO INTERNET");
+            } else {
+                responseListener.onSuccess(currencies);
+            }
         }
     }
 }

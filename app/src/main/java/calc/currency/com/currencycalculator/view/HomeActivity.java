@@ -20,9 +20,18 @@ import calc.currency.com.currencycalculator.CurrencyApplication;
 import calc.currency.com.currencycalculator.R;
 import calc.currency.com.currencycalculator.adapter.CurrencyAdapter;
 import calc.currency.com.currencycalculator.database.DbHelper;
+import calc.currency.com.currencycalculator.http.RequestHelper;
+import calc.currency.com.currencycalculator.http.RequestHelperImpl;
 import calc.currency.com.currencycalculator.model.Currency;
+import calc.currency.com.currencycalculator.model.CurrencyList;
 import calc.currency.com.currencycalculator.presenter.HomePresenter;
+import calc.currency.com.currencycalculator.service.CacheableCurrencyDataSource;
+import calc.currency.com.currencycalculator.service.CurrencyDataSource;
+import calc.currency.com.currencycalculator.service.CurrencyRepository;
 import calc.currency.com.currencycalculator.service.ExecutorProvider;
+import calc.currency.com.currencycalculator.service.StorageService;
+import calc.currency.com.currencycalculator.service.impl.CacheableCurrencyDataSourceImpl;
+import calc.currency.com.currencycalculator.service.impl.RemoteCurrencyDataSource;
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 
 public class HomeActivity extends AppCompatActivity implements HomeActivityView {
@@ -85,7 +94,12 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         setContentView(R.layout.activity_main);
         CurrencyApplication application = (CurrencyApplication) getApplication();
         ExecutorProvider executorProvider = application.getExecutorProvider();
-        homePresenter = new HomePresenter(this, new StorageServiceImpl(DbHelper.getInstance()), executorProvider.getIOExecutor());
+        StorageService storageService = new StorageServiceImpl(DbHelper.getInstance());
+        RequestHelper<CurrencyList> requestHelper = new RequestHelperImpl();
+        CacheableCurrencyDataSource cacheableCurrencyDataSource = new CacheableCurrencyDataSourceImpl(storageService);
+        CurrencyDataSource remoteCurrencyDataSource = new RemoteCurrencyDataSource(requestHelper);
+        CurrencyDataSource currencyDataSource = new CurrencyRepository(cacheableCurrencyDataSource, remoteCurrencyDataSource);
+        homePresenter = new HomePresenter(this, executorProvider.getIOExecutor(), currencyDataSource);
 
         firstSpinner = findViewById(R.id.first_spinner);
         secondSpinner = findViewById(R.id.second_spinner);

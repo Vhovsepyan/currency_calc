@@ -12,6 +12,8 @@ import calc.currency.com.currencycalculator.database.DbHelper;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.service.StorageService;
 
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
+
 public class StorageServiceImpl implements StorageService {
 
     private final DbHelper dbHelper;
@@ -21,10 +23,10 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public long inserCurrency(Currency currency) {
+    public long insertCurrency(Currency currency) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues contentValues = getCurrencyContentValues(currency);
-        return db.insert(DbConstants.CurrencyTable.TABLE_NAME, null, contentValues);
+        return db.insertWithOnConflict(DbConstants.CurrencyTable.TABLE_NAME, null, contentValues, CONFLICT_REPLACE);
     }
 
     @Override

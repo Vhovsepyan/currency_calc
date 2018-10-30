@@ -6,7 +6,7 @@ import calc.currency.com.currencycalculator.model.Currency;
 
 public interface StorageService {
 
-    long inserCurrency(Currency currency);
+    long insertCurrency(Currency currency);
 
     Currency getCurrencyById(String id);
 
