@@ -1,8 +1,8 @@
-package calc.currency.com.currencycalculator.http;
+package calc.currency.com.currencycalculator.service;
 
 import android.support.annotation.NonNull;
 
-public interface HttpResponseListener<T> {
+public interface DataSourceListener<T> {
 
     void onSuccess(@NonNull T obj);
 

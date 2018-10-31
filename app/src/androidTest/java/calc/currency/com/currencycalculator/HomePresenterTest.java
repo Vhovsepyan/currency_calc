@@ -1,5 +1,7 @@
 package calc.currency.com.currencycalculator;
 
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
@@ -16,8 +18,14 @@ import calc.currency.com.currencycalculator.database.DbHelper;
 import calc.currency.com.currencycalculator.http.RequestHelper;
 import calc.currency.com.currencycalculator.http.RequestHelperImpl;
 import calc.currency.com.currencycalculator.model.Currency;
+import calc.currency.com.currencycalculator.model.CurrencyList;
 import calc.currency.com.currencycalculator.presenter.HomePresenter;
+import calc.currency.com.currencycalculator.service.CacheableCurrencyDataSource;
+import calc.currency.com.currencycalculator.service.CurrencyDataSource;
+import calc.currency.com.currencycalculator.service.CurrencyRepository;
 import calc.currency.com.currencycalculator.service.StorageService;
+import calc.currency.com.currencycalculator.service.impl.CacheableCurrencyDataSourceImpl;
+import calc.currency.com.currencycalculator.service.impl.RemoteCurrencyDataSource;
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 import calc.currency.com.currencycalculator.view.HomeActivityView;
 
@@ -31,33 +39,38 @@ public class HomePresenterTest {
     private StorageService storageService;
     private HomeActivityView activityView;
     private ExecutorService delegateExecutor;
-
+    private CurrencyDataSource currencyDataSource;
+    private Context mContext;
 
     @Before
     public void init() {
-        dbHelper = DbHelper.getInstance();
+        mContext = InstrumentationRegistry.getTargetContext();
+        dbHelper = DbHelper.getInstance(mContext);
         requestHelper = new RequestHelperImpl();
         storageService = new StorageServiceImpl(dbHelper);
         delegateExecutor = Executors.newSingleThreadExecutor();
+
+        StorageService storageService = new StorageServiceImpl(dbHelper);
+        RequestHelper<CurrencyList> requestHelper = new RequestHelperImpl();
+        CacheableCurrencyDataSource cacheableCurrencyDataSource = new CacheableCurrencyDataSourceImpl(storageService);
+        CurrencyDataSource remoteCurrencyDataSource = new RemoteCurrencyDataSource(requestHelper);
+        currencyDataSource = new CurrencyRepository(cacheableCurrencyDataSource, remoteCurrencyDataSource);
 
     }
 
     @Test
     public void startTest() {
         final int[] dataIsReadyCount = {0};
-        final int[] showLoaderCount = {0};
         final int[] calculationIsReadyCount = {0};
-        final int[] isAliveCount = {0};
 
         Currency currencyUSD = storageService.getCurrencyByCharCode("USD");
         Currency currencyAMD = storageService.getCurrencyByCharCode("AMD");
 
-        CountDownLatch l = new CountDownLatch(1);
+        CountDownLatch l = new CountDownLatch(2);
 
         HomePresenter presenter = new HomePresenter(new HomeActivityView() {
             @Override
             public void showLoader() {
-                showLoaderCount[0]++;
             }
 
             @Override
@@ -73,6 +86,7 @@ public class HomePresenterTest {
 
             @Override
             public void calculationIsReady(String result) {
+                l.countDown();
                 calculationIsReadyCount[0]++;
                 Log.i("tttt_log", "calculationIsReady calcCount = " + calculationIsReadyCount[0]);
             }
@@ -83,16 +97,26 @@ public class HomePresenterTest {
             }
 
             @Override
+            public void showToast(String msg) {
+
+            }
+
+            @Override
+            public void showToast(int resId) {
+
+            }
+
+            @Override
             public boolean isAlive() {
-                isAliveCount[0]++;
                 return false;
             }
-        }, storageService, delegateExecutor);
+        }, delegateExecutor, currencyDataSource);
 
         presenter.start();
 
         presenter.setFromCurrency(currencyAMD);
         presenter.setToCurrency(currencyUSD);
+
         try {
             l.await();
         } catch (InterruptedException e) {
@@ -101,12 +125,7 @@ public class HomePresenterTest {
 
         assertTrue(dataIsReadyCount[0] == 1);
         assertTrue(calculationIsReadyCount[0] == 1);
-        Log.i("tttt_log", " 1 calcCount = " + calculationIsReadyCount[0]);
-        presenter.convertCurrencies();
 
-        assertTrue(dataIsReadyCount[0] == 1);
-        assertTrue(calculationIsReadyCount[0] == 1);
-        Log.i("tttt_log", " 2 calcCount = " + calculationIsReadyCount[0]);
     }
 
 }

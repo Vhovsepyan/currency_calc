@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -35,6 +36,11 @@ import calc.currency.com.currencycalculator.service.impl.RemoteCurrencyDataSourc
 import calc.currency.com.currencycalculator.service.impl.StorageServiceImpl;
 
 public class HomeActivity extends AppCompatActivity implements HomeActivityView {
+
+    private final String FIRST_CURRENCY_KEY = "FIRST_CURRENCY_KEY";
+    private final String SECOND_CURRENCY_KEY = "SECOND_CURRENCY_KEY";
+    int firstCurrencyPosition ;
+    int secondCurrencyPosition ;
 
     private HomePresenter homePresenter;
     private Spinner firstSpinner;
@@ -73,6 +79,7 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
     private AdapterView.OnItemSelectedListener secondSpinnerListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            homePresenter.setValueToConvert(firstEditText.getText().toString());
             homePresenter.setToCurrency((Currency) secondSpinner.getAdapter().getItem(position));
         }
 
@@ -94,7 +101,7 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         setContentView(R.layout.activity_main);
         CurrencyApplication application = (CurrencyApplication) getApplication();
         ExecutorProvider executorProvider = application.getExecutorProvider();
-        StorageService storageService = new StorageServiceImpl(DbHelper.getInstance());
+        StorageService storageService = new StorageServiceImpl(DbHelper.getInstance(application));
         RequestHelper<CurrencyList> requestHelper = new RequestHelperImpl();
         CacheableCurrencyDataSource cacheableCurrencyDataSource = new CacheableCurrencyDataSourceImpl(storageService);
         CurrencyDataSource remoteCurrencyDataSource = new RemoteCurrencyDataSource(requestHelper);
@@ -108,6 +115,11 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         replaceIcon = findViewById(R.id.equals_or_replace_icon);
         replaceIcon.setOnClickListener(replaceClickListener);
         progressLayout = findViewById(R.id.progress_layout);
+
+        if (savedInstanceState != null){
+            firstCurrencyPosition = savedInstanceState.getInt(FIRST_CURRENCY_KEY);
+            secondCurrencyPosition = savedInstanceState.getInt(SECOND_CURRENCY_KEY);
+        }
 
         homePresenter.start();
     }
@@ -147,17 +159,36 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityView 
         secondSpinner.setSelection(firstCurrencyPosition);
     }
 
+    @Override
+    public void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showToast(int resId) {
+        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show();
+    }
+
     private void initAdapter(List<Currency> currencies) {
         adapter = new CurrencyAdapter(this, R.layout.currency_adapter_item, currencies);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         firstSpinner.setAdapter(adapter);
         firstSpinner.setOnItemSelectedListener(firstSpinnerListener);
+        firstSpinner.setSelection(firstCurrencyPosition);
         secondSpinner.setAdapter(adapter);
         secondSpinner.setOnItemSelectedListener(secondSpinnerListener);
+        secondSpinner.setSelection(secondCurrencyPosition);
     }
 
     @Override
     public boolean isAlive() {
         return getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.CREATED);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(FIRST_CURRENCY_KEY, firstSpinner.getSelectedItemPosition());
+        outState.putInt(SECOND_CURRENCY_KEY, secondSpinner.getSelectedItemPosition());
+        super.onSaveInstanceState(outState);
     }
 }

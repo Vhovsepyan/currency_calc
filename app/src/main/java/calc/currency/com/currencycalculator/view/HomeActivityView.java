@@ -14,4 +14,8 @@ public interface HomeActivityView extends BaseView {
     void calculationIsReady(String result);
 
     void replaceCurrencies(int firstCurrencyPosition, int secondCurrencyPosition);
+
+    void showToast(String msg);
+
+    void showToast(int resId);
 }

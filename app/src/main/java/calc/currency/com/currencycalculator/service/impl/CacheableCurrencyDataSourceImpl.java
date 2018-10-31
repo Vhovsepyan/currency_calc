@@ -5,17 +5,12 @@ import android.support.annotation.NonNull;
 import java.util.Date;
 import java.util.List;
 
-import calc.currency.com.currencycalculator.http.HttpResponseListener;
+import calc.currency.com.currencycalculator.service.DataSourceListener;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.model.CurrencyList;
 import calc.currency.com.currencycalculator.service.CacheableCurrencyDataSource;
 import calc.currency.com.currencycalculator.service.StorageService;
 
-/**
- * Created by Norayr Tiratsyan
- * Date: 10/30/18
- * Time: 3:09 PM
- */
 public class CacheableCurrencyDataSourceImpl implements CacheableCurrencyDataSource {
     private final StorageService storageService;
 
@@ -29,7 +24,7 @@ public class CacheableCurrencyDataSourceImpl implements CacheableCurrencyDataSou
     }
 
     @Override
-    public void getCurrencies(HttpResponseListener<CurrencyList> responseListener) {
+    public void getCurrencies(DataSourceListener<CurrencyList> responseListener) {
         List<Currency> currencies = storageService.getAllCurrencies();
         if (currencies == null || currencies.isEmpty()) {
             responseListener.onError("NO CACHED VALUE");
@@ -47,8 +42,7 @@ public class CacheableCurrencyDataSourceImpl implements CacheableCurrencyDataSou
         if (currencies != null && !currencies.isEmpty()) {
             for (int i = 0; i < currencies.size(); i++) {
                 Currency currency = currencies.get(i);
-                currency.setId(i);
-                storageService.insertCurrency(currency);
+                storageService.insertOrUpdateCurrency(currency);
             }
         }
     }

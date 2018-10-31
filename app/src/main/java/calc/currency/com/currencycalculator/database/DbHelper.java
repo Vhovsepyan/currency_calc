@@ -8,17 +8,21 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "CurrencyApp.db";
+    private static DbHelper sInstance;
 
     private DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public static void initDatabase(Context context) {
-        Holder.initDatabase(context);
-    }
-
-    public static DbHelper getInstance() {
-        return Holder.sInstance;
+    public static DbHelper getInstance(Context context) {
+        if (sInstance == null){
+            synchronized (DbHelper.class){
+                if (sInstance == null){
+                    sInstance = new DbHelper(context);
+                }
+            }
+        }
+        return sInstance;
     }
 
     @Override
@@ -38,8 +42,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private void createCurrencyTable(SQLiteDatabase db) {
         String sqlQuery = "CREATE TABLE " + DbConstants.CurrencyTable.TABLE_NAME + " ("
-                + DbConstants.CurrencyTable.COLUMN_ID + " INT PRIMARY KEY,"
-                + DbConstants.CurrencyTable.COLUMN_CURRENCY_ID + " TEXT,"
+                + DbConstants.CurrencyTable.COLUMN_CURRENCY_ID + " TEXT PRIMARY KEY,"
                 + DbConstants.CurrencyTable.COLUMN_NUM_CODE + " INT,"
                 + DbConstants.CurrencyTable.COLUMN_CHAR_CODE + " TEXT,"
                 + DbConstants.CurrencyTable.COLUMN_NOMINAL + " INT,"
@@ -48,14 +51,5 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.execSQL(sqlQuery);
 
-    }
-
-    private static class Holder {
-
-        private static DbHelper sInstance;
-
-        private static void initDatabase(Context context) {
-            sInstance = new DbHelper(context);
-        }
     }
 }

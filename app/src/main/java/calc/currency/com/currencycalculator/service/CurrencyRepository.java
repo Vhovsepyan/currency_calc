@@ -2,7 +2,6 @@ package calc.currency.com.currencycalculator.service;
 
 import android.support.annotation.NonNull;
 
-import calc.currency.com.currencycalculator.http.HttpResponseListener;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.model.CurrencyList;
 
@@ -15,7 +14,7 @@ public class CurrencyRepository implements CurrencyDataSource {
         this.currencyDataSource = currencyDataSource;
     }
 
-    private static Currency getCurrencyRub() {
+    private static Currency generateCurrencyRub() {
         Currency rub = new Currency();
         rub.setCurrencyId("");
         rub.setCharCode("RUB");
@@ -27,32 +26,31 @@ public class CurrencyRepository implements CurrencyDataSource {
     }
 
     @Override
-    public void getCurrencies(HttpResponseListener<CurrencyList> responseListener) {
-        HttpResponseListener<CurrencyList> listenerFromCache = new HttpResponseListener<CurrencyList>() {
+    public void getCurrencies(DataSourceListener<CurrencyList> responseListener) {
+        DataSourceListener<CurrencyList> listenerRemote = new DataSourceListener<CurrencyList>() {
             @Override
             public void onSuccess(@NonNull CurrencyList obj) {
-                responseListener.onSuccess(obj);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                responseListener.onError(errorMessage);
-            }
-        };
-        HttpResponseListener<CurrencyList> listenerRemote = new HttpResponseListener<CurrencyList>() {
-            @Override
-            public void onSuccess(@NonNull CurrencyList obj) {
-                obj.getCurrencies().add(getCurrencyRub());
+                obj.getCurrencies().add(generateCurrencyRub());
                 cacheableCurrencyDataSource.saveCurrencies(obj);
                 responseListener.onSuccess(obj);
             }
 
             @Override
             public void onError(String errorMessage) {
-                responseListener.onError(errorMessage);
+                DataSourceListener<CurrencyList> listenerFromCache = new DataSourceListener<CurrencyList>() {
+                    @Override
+                    public void onSuccess(@NonNull CurrencyList obj) {
+                        responseListener.onSuccess(obj);
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        responseListener.onError(errorMessage);
+                    }
+                };
+                cacheableCurrencyDataSource.getCurrencies(listenerFromCache);
             }
         };
-        cacheableCurrencyDataSource.getCurrencies(listenerFromCache);
         currencyDataSource.getCurrencies(listenerRemote);
     }
 }

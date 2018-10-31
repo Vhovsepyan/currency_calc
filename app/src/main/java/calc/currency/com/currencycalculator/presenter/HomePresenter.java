@@ -2,20 +2,18 @@ package calc.currency.com.currencycalculator.presenter;
 
 import android.support.annotation.NonNull;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-import calc.currency.com.currencycalculator.http.HttpResponseListener;
+import calc.currency.com.currencycalculator.R;
+import calc.currency.com.currencycalculator.exception.CouldNotConvertException;
 import calc.currency.com.currencycalculator.model.Currency;
 import calc.currency.com.currencycalculator.model.CurrencyList;
 import calc.currency.com.currencycalculator.service.CurrencyDataSource;
+import calc.currency.com.currencycalculator.service.DataSourceListener;
+import calc.currency.com.currencycalculator.utils.CurrencyUtils;
 import calc.currency.com.currencycalculator.view.HomeActivityView;
-import utils.CurrencyUtils;
 
 public class HomePresenter extends BasePresenter {
     private final Executor executor;
@@ -24,10 +22,11 @@ public class HomePresenter extends BasePresenter {
     private Currency fromCurrency;
     private Currency toCurrency;
     private double valueToConvert;
-    private List<Currency> mCurrencies = new ArrayList<>();
-    private HttpResponseListener<CurrencyList> responseListener = new HttpResponseListener<CurrencyList>() {
+    private CopyOnWriteArrayList<Currency> mCurrencies = new CopyOnWriteArrayList<>();
+    private DataSourceListener<CurrencyList> responseListener = new DataSourceListener<CurrencyList>() {
         @Override
         public void onSuccess(@NonNull CurrencyList obj) {
+            mCurrencies.clear();
             mCurrencies.addAll(obj.getCurrencies());
             Collections.sort(mCurrencies, (o1, o2) -> o1.getCharCode().compareTo(o2.getCharCode()));
             getMainHandler().post(() -> {
@@ -108,18 +107,20 @@ public class HomePresenter extends BasePresenter {
         if (fromCurrency == null || toCurrency == null) {
             return;
         }
-        double result = CurrencyUtils.getPrice(fromCurrency, toCurrency, valueToConvert);
-        final String moneyString = getString(result);
+        double result = 0;
+        try {
+            result = CurrencyUtils.getPrice(fromCurrency, toCurrency, valueToConvert);
+        } catch (CouldNotConvertException e) {
+            e.printStackTrace();
+            if (homeView != null){
+                getMainHandler().post(() -> homeView.showToast(R.string.less_than_zero_text));
+            }
+        }
+        final String moneyString = CurrencyUtils.getString(result);
         if (homeView != null) {
             getMainHandler().post(() -> homeView.calculationIsReady(moneyString));
         }
     }
 
-    private String getString(double result) {
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) formatter).getDecimalFormatSymbols();
-        decimalFormatSymbols.setCurrencySymbol("");
-        ((DecimalFormat) formatter).setDecimalFormatSymbols(decimalFormatSymbols);
-        return formatter.format(result);
-    }
+
 }
